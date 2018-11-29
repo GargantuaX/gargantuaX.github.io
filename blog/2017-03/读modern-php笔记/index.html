@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="zn-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+  <meta name="author" content="Tars">
+  <meta name="description" content="读这本书感觉真的是一个前辈给后辈的敦敦教诲，颇费苦心。 我在这里列一下这本书的精华，供大家参考。 使用接口 依赖接口，而非具体实现，可以解耦，参考Laravel的契约 性状（trait） 这个特性很有意思，名字名副其实。 假如现在有一个人，还有一辆车，车和人都要实现给自己定位的功能，显然车和人不适合从一个父类继承，那这个时候trait就排上用场了。这是一个横向复用机制，让若干不想关的类带上同样一个性状。 http://php.net/manual/zh/language.oop5.traits.php 生成">
+  
+  <meta property="og:title" content="读《Modern PHP》笔记" />
+<meta property="og:description" content="读这本书感觉真的是一个前辈给后辈的敦敦教诲，颇费苦心。 我在这里列一下这本书的精华，供大家参考。 使用接口 依赖接口，而非具体实现，可以解耦，参考Laravel的契约 性状（trait） 这个特性很有意思，名字名副其实。 假如现在有一个人，还有一辆车，车和人都要实现给自己定位的功能，显然车和人不适合从一个父类继承，那这个时候trait就排上用场了。这是一个横向复用机制，让若干不想关的类带上同样一个性状。 http://php.net/manual/zh/language.oop5.traits.php 生成" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://gargantuaX.github.io/blog/2017-03/%E8%AF%BBmodern-php%E7%AC%94%E8%AE%B0/" /><meta property="article:published_time" content="2017-03-08T12:34:48&#43;00:00"/>
+<meta property="article:modified_time" content="2017-03-08T12:34:48&#43;00:00"/>
+
+
+  <title>
+  
+       读《Modern PHP》笔记 | Tars 
+  
+  </title>
+
+  <link rel="canonical" href="https://gargantuaX.github.io/blog/2017-03/%E8%AF%BBmodern-php%E7%AC%94%E8%AE%B0/">
+
+  
+  
+
+  
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/fontawesome/all.min.css" rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:300,400,500,600">
+  <link href="https://gargantuaX.github.io/css/font.css" rel="stylesheet"> 
+    
+  
+  <link href="https://gargantuaX.github.io/css/vendors/bootstrap4/bootstrap.min.css" rel="stylesheet">
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/mdb/mdb.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/vendors/mdb/style.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/main.css" rel="stylesheet">
+
+
+  
+  <link rel="shortcut icon"
+  
+      href="https://gargantuaX.github.io/img/logo.png"
+  
+  >
+
+
+  
+  
+
+  <style type="text/css">
+      @media (min-width: 800px) and (max-width: 850px) {
+              .navbar:not(.top-nav-collapse) {
+                  background: #1C2331!important;
+              }
+          }
+  </style>
+
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/js/vendors/katex/katex.min.css">
+  
+  
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/css/vendors/highlight/github-gist.css">
+  
+
+</head>
+
+  <body class="bg-light" data-spy="scroll" data-target="#page-scrollspy" data-offset="90">
+  
+    
+    
+
+    
+      
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
+    <div class="container">
+
+      
+      <a class="navbar-brand" href="https://gargantuaX.github.io">
+          
+        <img class="avatar" src="https://gargantuaX.github.io/img/logo.png" style="width: 40px!important;height: auto;"  class="d-inline-block align-top" alt="" >
+        
+        <strong> Tars</strong>
+      </a>
+
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        
+        <ul class="navbar-nav mr-auto ">
+          <li class="nav-item ">
+            <a class="nav-link" href="https://gargantuaX.github.io">Home</a>
+          </li>
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/blog/" >Blog  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/about/" >About  </a>
+            </li>
+          
+          
+        </ul>
+
+      </div>
+
+    </div>
+  </nav>
+  
+ 
+      
+ 
+
+
+
+
+
+
+<div id="site-header" class="carousel slide carousel-fade" data-ride="carousel" style="height: 18rem;" >  
+
+  
+  
+  
+
+  
+  <div class="carousel-inner" role="listbox">
+    
+      
+
+        
+        <div class="carousel-item active">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides/1.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+              
+              
+              
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//2.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//3.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+
+  
+  </div>
+  
+
+  
+  <div class="carousel-content text-center white-text wow fadeIn">
+    <div class="row mx-0 headfont mt-3 pt-4">
+      
+      <div class="col-12 col-sm-5 align-middle">
+        <a href="https://gargantuaX.github.io">
+          
+            <img class="pull-right avatar avatar-md" src="https://gargantuaX.github.io/img/profile.jpg" alt="" >
+          
+        </a>
+      </div>
+      
+      <div class="col-12 col-sm-7 text-left pl-2">
+        <a href="https://gargantuaX.github.io">
+          <h1 class="mb-2 h1" style="font-weight: 300;" >
+            <strong>Tars</strong>
+          </h1>
+        </a>
+        
+
+             
+        <div class="mt-2" style="font-size: 1rem; color: white;">
+            
+              <a href="//github.com/gargantuaX" target="_blank" rel="noopener"><i class="fab fa-github pr-1" aria-hidden="true"></i></a>    
+            
+            
+
+            
+
+            
+
+            
+
+            
+    
+            
+    
+        
+            
+                <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open pr-1" aria-hidden="true"></i></a>
+            
+    
+            
+
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+  
+  
+
+</div>
+  
+    
+
+    
+  
+  <main class="post-main-wrapper">
+    
+    
+    <div class="row">
+
+      
+
+      
+      <div class="col-md-10">
+      
+
+        
+        <div class="z-depth-1  post-wrapper white-bg single-post">
+
+          <div class="post-header text-center" >
+  <ul class="post-meta li-x">
+    
+      
+        <li><a href="https://gargantuaX.github.io/categories/php"><i class="fas fa-folder-open pr-1" aria-hidden="true"></i> PHP </a></li>
+      
+    
+    
+  </ul>
+
+  <div class="px-4 post-heading">读《Modern PHP》笔记</div>
+
+  <ul class="post-meta li-x mt-1">
+    
+      <li>Mar 8, 2017</li>
+    
+
+    
+      <li class="middot"></li>
+      <li>2 minutes read</li>
+    
+  </ul>
+  
+
+</div>
+
+
+          <div class="post-content markdown">
+            
+
+<p>读这本书感觉真的是一个前辈给后辈的敦敦教诲，颇费苦心。</p>
+
+<p>我在这里列一下这本书的精华，供大家参考。</p>
+
+<h2 id="使用接口">使用接口</h2>
+
+<p>依赖接口，而非具体实现，可以解耦，参考Laravel的契约</p>
+
+<h2 id="性状-trait">性状（trait）</h2>
+
+<p>这个特性很有意思，名字名副其实。
+假如现在有一个人，还有一辆车，车和人都要实现给自己定位的功能，显然车和人不适合从一个父类继承，那这个时候trait就排上用场了。这是一个横向复用机制，让若干不想关的类带上同样一个性状。
+<a href="http://php.net/manual/zh/language.oop5.traits.php">http://php.net/manual/zh/language.oop5.traits.php</a></p>
+
+<h2 id="生成器-yield">生成器（yield）</h2>
+
+<p>这个特性也很有用，yield和return类似，区别在于yield只产出值，不返回值。<br />
+也可以这样理解，return是一次性全部交付给你，yield是承诺全部交付给你，但这次先把你现在用到的东西给你，剩下的下次你再来取。<br />
+显然，在迭代一个超大数据的时候（遍历超大数组），yield可以先给你一个元素，不用生成整个数组，可以省内存。</p>
+
+<p>上代码：</p>
+
+<pre><code>&lt;?php
+function makeRange($length){
+
+    $arr=[];
+
+    for($i=0;$i&lt;$length;$i++) $arr[]=$i;
+
+    return $arr;
+
+}
+
+$results=makeRange(100000);
+
+foreach($results as $i) echo $i.PHP_EOL;  
+</code></pre>
+
+<p>代码2：</p>
+
+<pre><code>&lt;?php
+
+function makeRange($length){
+
+    $arr=[];
+
+    for($i=0;$i&lt;$length;$i++) yield $i;
+
+}
+
+foreach(makeRange(100000) as $i) echo $i.PHP_EOL;
+</code></pre>
+
+<p>第一个是先生成一整个数组再遍历，第二个是一边生成一边遍历。
+<a href="http://php.net/manual/zh/language.generators.overview.php">http://php.net/manual/zh/language.generators.overview.php</a></p>
+
+<h2 id="闭包-命名空间-opcache">闭包，命名空间，opcache</h2>
+
+<p>略</p>
+
+<h2 id="psr-组件-composer">PSR，组件，composer</h2>
+
+<p>这三个东西对现代PHP意义特别重大，选择可复用组件就是选择了未来，细分领域让最专业的人去做。</p>
+
+<h2 id="过滤-验证-转义-防注入和防xss">过滤，验证，转义（防注入和防XSS）</h2>
+
+<p>输入和输出要过滤html，使用<code>htmlentities($str, ENT_QUOTES, &quot;UTF-8&quot;);</code> 第二个参数开启转义单双引号，第三个参数指明字符集，都是必须开启的。</p>
+
+<p>使用PHP自带过滤和验证函数<br />
+<code>filter_input()</code>
+<a href="http://php.net/manual/zh/function.filter-input.php">http://php.net/manual/zh/function.filter-input.php</a></p>
+
+<p><code>filter_var()</code>
+<a href="http://php.net/manual/zh/function.filter-var.php">http://php.net/manual/zh/function.filter-var.php</a></p>
+
+<h2 id="数据库">数据库</h2>
+
+<p>使用PDO和预处理</p>
+
+<h2 id="密码">密码</h2>
+
+<p>使用内置的密码函数，使用bcrypt加密</p>
+
+<p><code>password_hash()</code>
+<a href="http://php.net/manual/zh/function.password-hash.php">http://php.net/manual/zh/function.password-hash.php</a></p>
+
+<p><code>password_verify()</code> <a href="http://php.net/manual/zh/function.password-verify.php">http://php.net/manual/zh/function.password-verify.php</a></p>
+
+<h2 id="多字节字符串">多字节字符串</h2>
+
+<p>使用mb系列函数</p>
+
+<h2 id="流处理-错误和异常-自动部署-持续测试">流处理，错误和异常，自动部署，持续测试</h2>
+
+<p>略</p>
+
+          </div>
+
+          
+          <div class="row">
+            <div class="col-md-8">
+            
+              <div class="mb-5">
+                
+<div class="li-x div-x post-meta">
+  <li class="pr-0"><a href="https://gargantuaX.github.io/tags/"><i class="fas fa-tags"></i></a></li>
+  <div class="tags-sm">
+    
+      <li><a href="https://gargantuaX.github.io/tags/php" role="button">PHP </a></li>
+      
+    
+  </div>
+</div>
+              </div>
+            
+            </div>
+            
+          </div>
+          
+
+          
+          <div class="row pt-3">
+            <div class="col-md-6">
+              
+                <a href=https://gargantuaX.github.io/blog/2017-03/%E8%AF%BB%E9%AB%98%E6%80%A7%E8%83%BDphp%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/ class="post-meta">Previous
+                  <div class="pt-2 pb-5 d-flex">
+                    <i class="fas fa-angle-left text-grey font-weight-bold mr-2 active-color"></i>
+                    <span>读《高性能PHP应用开发》笔记</span>
+                  </div>
+                </a>
+              
+            </div>
+            
+            <div class="col-md-6 text-right" >
+              
+                <a href=https://gargantuaX.github.io/blog/2017-03/%E8%AF%BB%E9%AB%98%E6%80%A7%E8%83%BDmysql%E7%AC%94%E8%AE%B0/ class="post-meta">Next
+                  <div class="pt-2 pb-5 flex-reverse">
+                    <i class="fas fa-angle-right text-grey font-weight-bold ml-2 active-color"></i>
+                    <span>读《高性能mysql》笔记</span>
+                  </div>
+                </a>
+              
+            </div>
+          </div>
+
+          
+
+        </div>
+        
+
+      </div>
+      
+
+      
+	
+	
+	
+	
+		
+		
+		
+	
+
+		
+		<div class="col-md-2 pl-0">
+
+			
+			<div id="page-scrollspy" class="toc-nav">
+				
+				<ul class="nav nav-pills ml-0">
+					
+					<li class="nav-item pb-3 text-center">
+						<span class="font-weight-bold mb-2">- CATALOG - </span>
+					</li>
+
+					
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e4%bd%bf%e7%94%a8%e6%8e%a5%e5%8f%a3">
+												 使用接口
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e6%80%a7%e7%8a%b6-trait">
+												 性状（trait）
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e7%94%9f%e6%88%90%e5%99%a8-yield">
+												 生成器（yield）
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e9%97%ad%e5%8c%85-%e5%91%bd%e5%90%8d%e7%a9%ba%e9%97%b4-opcache">
+												 闭包，命名空间，opcache
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#psr-%e7%bb%84%e4%bb%b6-composer">
+												 PSR，组件，composer
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e8%bf%87%e6%bb%a4-%e9%aa%8c%e8%af%81-%e8%bd%ac%e4%b9%89-%e9%98%b2%e6%b3%a8%e5%85%a5%e5%92%8c%e9%98%b2xss">
+												 过滤，验证，转义（防注入和防XSS）
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e6%95%b0%e6%8d%ae%e5%ba%93">
+												 数据库
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%af%86%e7%a0%81">
+												 密码
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%a4%9a%e5%ad%97%e8%8a%82%e5%ad%97%e7%ac%a6%e4%b8%b2">
+												 多字节字符串
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e6%b5%81%e5%a4%84%e7%90%86-%e9%94%99%e8%af%af%e5%92%8c%e5%bc%82%e5%b8%b8-%e8%87%aa%e5%8a%a8%e9%83%a8%e7%bd%b2-%e6%8c%81%e7%bb%ad%e6%b5%8b%e8%af%95">
+												 流处理，错误和异常，自动部署，持续测试
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+
+				</ul>
+			</div>
+			
+
+		</div>
+		
+	
+
+    </div>
+    
+
+
+  </main>
+  
+
+
+    
+    
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+
+
+  
+  <div class="pb-2 mt-5 pt-5">
+    
+      <a href="//github.com/gargantuaX " target="_blank" rel="noopener"><i class="fab fa-github mr-3" aria-hidden="true"></i></a>    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+        <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open mr-3" aria-hidden="true"></i></a>
+    
+
+    
+
+    
+
+  </div>
+  
+
+  
+  <div class="copyright py-4">
+    
+    <span>  2016 - 2018 &copy; | Theme by Orianna</span>
+  </div>
+  
+
+</footer>
+
+
+    
+
+
+
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery.smooth-scroll.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/popper.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/holder.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors-extensions/bootstrap4/bootstrap.js" ></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/mdb/mdb.min.js"></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/main.js"></script>
+
+
+
+  
+  <script src="https://gargantuaX.github.io/js/vendors/highlight.pack.js"> </script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+ 
+  <script src="https://gargantuaX.github.io/js/vendors/katex/katex.min.js"> </script>
+  <script src="https://gargantuaX.github.io/js/vendors/katex/contrib/auto-render.min.js"></script>
+
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          renderMathInElement(document.body);
+      });
+  </script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  
+  new WOW().init();
+</script>
+
+
+
+
+  </body>
+</html>

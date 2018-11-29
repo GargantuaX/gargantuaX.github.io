@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="zn-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+  <meta name="author" content="Tars">
+  <meta name="description" content="简述 最近在一个群里看到join和in的争论，到底什么时候用in，什么时候用join，我做了实验来验证 预备知识 join type介绍 join type并非指join类型，而是查询类型 explain sql后的type字段正是join type Mysql中有以下join type，性能从高到底为： * system : 系统常量表 * const : 常量表 * eq_ref : 主键或者唯一索引 * ref : 非空索引 * ref_or_null : 可空索引 * range :索引列使用 BETWEEN, IN, &gt;=, LIKE等范围查询 * index : 循序扫描索引列 * ALL : 顺">
+  
+  <meta property="og:title" content="Mysql中in vs join" />
+<meta property="og:description" content="简述 最近在一个群里看到join和in的争论，到底什么时候用in，什么时候用join，我做了实验来验证 预备知识 join type介绍 join type并非指join类型，而是查询类型 explain sql后的type字段正是join type Mysql中有以下join type，性能从高到底为： * system : 系统常量表 * const : 常量表 * eq_ref : 主键或者唯一索引 * ref : 非空索引 * ref_or_null : 可空索引 * range :索引列使用 BETWEEN, IN, &gt;=, LIKE等范围查询 * index : 循序扫描索引列 * ALL : 顺" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://gargantuaX.github.io/blog/2018-11/mysql%E4%B8%ADin-vs-join/" /><meta property="article:published_time" content="2018-11-07T00:00:00&#43;00:00"/>
+<meta property="article:modified_time" content="2018-11-07T00:00:00&#43;00:00"/>
+
+
+  <title>
+  
+       Mysql中in vs join | Tars 
+  
+  </title>
+
+  <link rel="canonical" href="https://gargantuaX.github.io/blog/2018-11/mysql%E4%B8%ADin-vs-join/">
+
+  
+  
+
+  
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/fontawesome/all.min.css" rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:300,400,500,600">
+  <link href="https://gargantuaX.github.io/css/font.css" rel="stylesheet"> 
+    
+  
+  <link href="https://gargantuaX.github.io/css/vendors/bootstrap4/bootstrap.min.css" rel="stylesheet">
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/mdb/mdb.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/vendors/mdb/style.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/main.css" rel="stylesheet">
+
+
+  
+  <link rel="shortcut icon"
+  
+      href="https://gargantuaX.github.io/img/logo.png"
+  
+  >
+
+
+  
+  
+
+  <style type="text/css">
+      @media (min-width: 800px) and (max-width: 850px) {
+              .navbar:not(.top-nav-collapse) {
+                  background: #1C2331!important;
+              }
+          }
+  </style>
+
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/js/vendors/katex/katex.min.css">
+  
+  
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/css/vendors/highlight/github-gist.css">
+  
+
+</head>
+
+  <body class="bg-light" data-spy="scroll" data-target="#page-scrollspy" data-offset="90">
+  
+    
+    
+
+    
+      
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
+    <div class="container">
+
+      
+      <a class="navbar-brand" href="https://gargantuaX.github.io">
+          
+        <img class="avatar" src="https://gargantuaX.github.io/img/logo.png" style="width: 40px!important;height: auto;"  class="d-inline-block align-top" alt="" >
+        
+        <strong> Tars</strong>
+      </a>
+
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        
+        <ul class="navbar-nav mr-auto ">
+          <li class="nav-item ">
+            <a class="nav-link" href="https://gargantuaX.github.io">Home</a>
+          </li>
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/blog/" >Blog  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/about/" >About  </a>
+            </li>
+          
+          
+        </ul>
+
+      </div>
+
+    </div>
+  </nav>
+  
+ 
+      
+ 
+
+
+
+
+
+
+<div id="site-header" class="carousel slide carousel-fade" data-ride="carousel" style="height: 18rem;" >  
+
+  
+  
+  
+
+  
+  <div class="carousel-inner" role="listbox">
+    
+      
+
+        
+        <div class="carousel-item active">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides/1.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+              
+              
+              
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//2.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//3.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+
+  
+  </div>
+  
+
+  
+  <div class="carousel-content text-center white-text wow fadeIn">
+    <div class="row mx-0 headfont mt-3 pt-4">
+      
+      <div class="col-12 col-sm-5 align-middle">
+        <a href="https://gargantuaX.github.io">
+          
+            <img class="pull-right avatar avatar-md" src="https://gargantuaX.github.io/img/profile.jpg" alt="" >
+          
+        </a>
+      </div>
+      
+      <div class="col-12 col-sm-7 text-left pl-2">
+        <a href="https://gargantuaX.github.io">
+          <h1 class="mb-2 h1" style="font-weight: 300;" >
+            <strong>Tars</strong>
+          </h1>
+        </a>
+        
+
+             
+        <div class="mt-2" style="font-size: 1rem; color: white;">
+            
+              <a href="//github.com/gargantuaX" target="_blank" rel="noopener"><i class="fab fa-github pr-1" aria-hidden="true"></i></a>    
+            
+            
+
+            
+
+            
+
+            
+
+            
+    
+            
+    
+        
+            
+                <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open pr-1" aria-hidden="true"></i></a>
+            
+    
+            
+
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+  
+  
+
+</div>
+  
+    
+
+    
+  
+  <main class="post-main-wrapper">
+    
+    
+    <div class="row">
+
+      
+
+      
+      <div class="col-md-10">
+      
+
+        
+        <div class="z-depth-1  post-wrapper white-bg single-post">
+
+          <div class="post-header text-center" >
+  <ul class="post-meta li-x">
+    
+      
+        <li><a href="https://gargantuaX.github.io/categories/mysql"><i class="fas fa-folder-open pr-1" aria-hidden="true"></i> Mysql </a></li>
+      
+    
+    
+  </ul>
+
+  <div class="px-4 post-heading">Mysql中in vs join</div>
+
+  <ul class="post-meta li-x mt-1">
+    
+      <li>Nov 7, 2018</li>
+    
+
+    
+      <li class="middot"></li>
+      <li>3 minutes read</li>
+    
+  </ul>
+  
+
+</div>
+
+
+          <div class="post-content markdown">
+            
+
+<h1 id="简述">简述</h1>
+
+<p>最近在一个群里看到join和in的争论，到底什么时候用in，什么时候用join，我做了实验来验证</p>
+
+<h1 id="预备知识">预备知识</h1>
+
+<h2 id="join-type介绍">join type介绍</h2>
+
+<p>join type并非指join类型，而是查询类型
+explain sql后的type字段正是join type
+Mysql中有以下join type，性能从高到底为：
+* system : 系统常量表
+* const : 常量表
+* eq_ref : 主键或者唯一索引
+* ref : 非空索引
+* ref_or_null : 可空索引
+* range :索引列使用 BETWEEN, IN, &gt;=, LIKE等范围查询
+* index : 循序扫描索引列
+* ALL : 顺序扫描整张表</p>
+
+<p>详见：<a href="https://dev.mysql.com/doc/internals/en/optimizer-determining-join-type.html">https://dev.mysql.com/doc/internals/en/optimizer-determining-join-type.html</a></p>
+
+<h2 id="in和or等效">in和or等效</h2>
+
+<p>在Mysql中，这两个语句是等效的，in查询会被转换为or</p>
+
+<pre><code class="language-sql">column1 IN (1,2,3)
+column1 = 1 OR column1 = 2 OR column1 = 3
+</code></pre>
+
+<p>详见：<a href="https://dev.mysql.com/doc/internals/en/optimizer-range-join-type.html">https://dev.mysql.com/doc/internals/en/optimizer-range-join-type.html</a></p>
+
+<h2 id="mysql的join算法-nlj">Mysql的Join算法（NLJ）</h2>
+
+<p>Mysql的join使用的NLJ算法（内循环join算法）
+假设三个表之间的连接 t1，t2以及 t3是使用以下类型的连接来执行：</p>
+
+<pre><code>Table   Join Type
+t1      range
+t2      ref
+t3      ALL
+</code></pre>
+
+<p>如果使用简单的NLJ算法，则会按如下方式处理连接：</p>
+
+<pre><code class="language-sql">for each row in t1 matching range {
+  for each row in t2 matching reference key {
+    for each row in t3 {
+      if row satisfies join conditions, send to client
+    }
+  }
+}
+</code></pre>
+
+<p>Mysql使用Block Nested-Loop (BNL)进行处理，也就是join_buffer缓存联合数据，join_buffer_size 控制此项</p>
+
+<pre><code class="language-sql">for each row in t1 matching range {
+  for each row in t2 matching reference key {
+    store used columns from t1, t2 in join buffer
+    if buffer is full {
+      for each row in t3 {
+        for each t1, t2 combination in join buffer {
+          if row satisfies join conditions, send to client
+        }
+      }
+      empty join buffer
+    }
+  }
+}
+
+if buffer is not empty {
+  for each row in t3 {
+    for each t1, t2 combination in join buffer {
+      if row satisfies join conditions, send to client
+    }
+  }
+}
+</code></pre>
+
+<p>join_buffer_size
+详见：<a href="https://dev.mysql.com/doc/refman/8.0/en/nested-loop-joins.html">https://dev.mysql.com/doc/refman/8.0/en/nested-loop-joins.html</a></p>
+
+<p>join优化：
+<a href="https://dev.mysql.com/doc/refman/8.0/en/nested-join-optimization.html">https://dev.mysql.com/doc/refman/8.0/en/nested-join-optimization.html</a></p>
+
+<h1 id="实测数据">实测数据</h1>
+
+<p>使用Mysql5.7测试</p>
+
+<pre><code class="language-text">tag_count:3000,post_count:300000,tag_post_count:300000
+
+多对多，使用where in ，子查询
+sql:select * from posts where id in (select post_id from tag_post where tag_id in (select id from tags where type = &quot;3&quot; ) )
+total:57653
+cost:414.41ms
+
+多对多，拆分成3个查询，分别执行
+total tag_id:573
+total post_id:57653
+total:57653
+cost:446.82ms
+
+多对多，使用join
+sql:select * from posts left join tag_post on posts.id = tag_post.post_id left join tags on tags.id = tag_post.tag_id where tags.type = &quot;3&quot;
+total:57653
+cost:295.14ms
+
+一对多，使用子查询
+sql:select * from posts where tag_id in (select id from tags where type=3)
+total:57100
+cost:260.81ms
+
+一对多，使用in，并且拆分成两个查询
+total tag_id:573
+total:57100
+cost:219.88ms
+
+一对多，使用join
+sql:select * from posts left join tags on tags.id = posts.tag_id where tags.type = &quot;3&quot;
+total:57100
+cost:223.49ms
+</code></pre>
+
+<h1 id="结论">结论</h1>
+
+<ul>
+<li>in不慢，即使是上万的id。in会被mysql转换为or。</li>
+<li>in子查询比join慢，子查询有时无法正常使用索引</li>
+<li>表记录越多，join越慢，如果是特别大的表，用in会快很多</li>
+<li>拆分查询很有帮助，不过要注意IO固定开销</li>
+</ul>
+
+          </div>
+
+          
+          <div class="row">
+            <div class="col-md-8">
+            
+              <div class="mb-5">
+                
+<div class="li-x div-x post-meta">
+  <li class="pr-0"><a href="https://gargantuaX.github.io/tags/"><i class="fas fa-tags"></i></a></li>
+  <div class="tags-sm">
+    
+      <li><a href="https://gargantuaX.github.io/tags/mysql" role="button">Mysql </a></li>
+      
+    
+      <li><a href="https://gargantuaX.github.io/tags/%E9%AB%98%E6%80%A7%E8%83%BD" role="button">高性能 </a></li>
+      
+    
+  </div>
+</div>
+              </div>
+            
+            </div>
+            
+          </div>
+          
+
+          
+          <div class="row pt-3">
+            <div class="col-md-6">
+              
+                <a href=https://gargantuaX.github.io/blog/2017-10/web%E6%8E%A7%E5%88%B6%E6%89%93%E5%8D%B0%E6%9C%BA%E7%9A%84%E4%BC%98%E7%A7%80%E5%B7%A5%E5%85%B7-qz.io/ class="post-meta">Previous
+                  <div class="pt-2 pb-5 d-flex">
+                    <i class="fas fa-angle-left text-grey font-weight-bold mr-2 active-color"></i>
+                    <span>web控制打印机的优秀工具-qz.io</span>
+                  </div>
+                </a>
+              
+            </div>
+            
+            <div class="col-md-6 text-right" >
+              
+                <a href=https://gargantuaX.github.io/blog/2018-11/php%E5%92%8Cjava%E4%BA%92%E9%80%9A%E7%9A%84%E5%9B%BD%E5%AF%86sm4%E7%AE%97%E6%B3%95/ class="post-meta">Next
+                  <div class="pt-2 pb-5 flex-reverse">
+                    <i class="fas fa-angle-right text-grey font-weight-bold ml-2 active-color"></i>
+                    <span>PHP和Java互通的国密SM4算法</span>
+                  </div>
+                </a>
+              
+            </div>
+          </div>
+
+          
+
+        </div>
+        
+
+      </div>
+      
+
+      
+	
+	
+	
+	
+		
+		
+		
+	
+
+		
+		<div class="col-md-2 pl-0">
+
+			
+			<div id="page-scrollspy" class="toc-nav">
+				
+				<ul class="nav nav-pills ml-0">
+					
+					<li class="nav-item pb-3 text-center">
+						<span class="font-weight-bold mb-2">- CATALOG - </span>
+					</li>
+
+					
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e7%ae%80%e8%bf%b0">
+												 简述
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e9%a2%84%e5%a4%87%e7%9f%a5%e8%af%86">
+												 预备知识
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#join-type%e4%bb%8b%e7%bb%8d">
+												 join type介绍
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#in%e5%92%8cor%e7%ad%89%e6%95%88">
+												 in和or等效
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#mysql%e7%9a%84join%e7%ae%97%e6%b3%95-nlj">
+												 Mysql的Join算法（NLJ）
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%ae%9e%e6%b5%8b%e6%95%b0%e6%8d%ae">
+												 实测数据
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e7%bb%93%e8%ae%ba">
+												 结论
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+							
+						
+				 
+
+				</ul>
+			</div>
+			
+
+		</div>
+		
+	
+
+    </div>
+    
+
+
+  </main>
+  
+
+
+    
+    
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+
+
+  
+  <div class="pb-2 mt-5 pt-5">
+    
+      <a href="//github.com/gargantuaX " target="_blank" rel="noopener"><i class="fab fa-github mr-3" aria-hidden="true"></i></a>    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+        <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open mr-3" aria-hidden="true"></i></a>
+    
+
+    
+
+    
+
+  </div>
+  
+
+  
+  <div class="copyright py-4">
+    
+    <span>  2016 - 2018 &copy; | Theme by Orianna</span>
+  </div>
+  
+
+</footer>
+
+
+    
+
+
+
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery.smooth-scroll.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/popper.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/holder.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors-extensions/bootstrap4/bootstrap.js" ></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/mdb/mdb.min.js"></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/main.js"></script>
+
+
+
+  
+  <script src="https://gargantuaX.github.io/js/vendors/highlight.pack.js"> </script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+ 
+  <script src="https://gargantuaX.github.io/js/vendors/katex/katex.min.js"> </script>
+  <script src="https://gargantuaX.github.io/js/vendors/katex/contrib/auto-render.min.js"></script>
+
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          renderMathInElement(document.body);
+      });
+  </script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  
+  new WOW().init();
+</script>
+
+
+
+
+  </body>
+</html>

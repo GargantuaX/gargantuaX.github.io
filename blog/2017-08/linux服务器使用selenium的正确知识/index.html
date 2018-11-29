@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zn-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+  <meta name="author" content="Tars">
+  <meta name="description" content="导语 最近使用PHP做了一些爬虫,其中部分需要用到selenium开浏览器 值得注意的是Linux服务器没有显示输出终端的,我们要运行GUI程序,需要用到虚拟显示终端,比如 Xvfb 另外服务器上建议用Firefox,备用Chrome,在实践当中,前者问题少一些 安装步骤 安装php-webdriver https://github.com/facebook/php-webdriver 安装Firefox apt-get install firefox 安装geckodriver https://github.com/mozilla/geckodriver/releases 安装xvfb apt-get install xvfb 运行步骤 设置xvfb export DISPLAY=:10 Xvfb :10 -screen 0 1366x768x24 -ac &amp; 启用">
+  
+  <meta property="og:title" content="Linux服务器使用selenium的正确知识" />
+<meta property="og:description" content="导语 最近使用PHP做了一些爬虫,其中部分需要用到selenium开浏览器 值得注意的是Linux服务器没有显示输出终端的,我们要运行GUI程序,需要用到虚拟显示终端,比如 Xvfb 另外服务器上建议用Firefox,备用Chrome,在实践当中,前者问题少一些 安装步骤 安装php-webdriver https://github.com/facebook/php-webdriver 安装Firefox apt-get install firefox 安装geckodriver https://github.com/mozilla/geckodriver/releases 安装xvfb apt-get install xvfb 运行步骤 设置xvfb export DISPLAY=:10 Xvfb :10 -screen 0 1366x768x24 -ac &amp; 启用" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://gargantuaX.github.io/blog/2017-08/linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BD%BF%E7%94%A8selenium%E7%9A%84%E6%AD%A3%E7%A1%AE%E7%9F%A5%E8%AF%86/" /><meta property="article:published_time" content="2017-08-30T05:48:56&#43;00:00"/>
+<meta property="article:modified_time" content="2017-08-30T05:48:56&#43;00:00"/>
+
+
+  <title>
+  
+       Linux服务器使用selenium的正确知识 | Tars 
+  
+  </title>
+
+  <link rel="canonical" href="https://gargantuaX.github.io/blog/2017-08/linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BD%BF%E7%94%A8selenium%E7%9A%84%E6%AD%A3%E7%A1%AE%E7%9F%A5%E8%AF%86/">
+
+  
+  
+
+  
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/fontawesome/all.min.css" rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:300,400,500,600">
+  <link href="https://gargantuaX.github.io/css/font.css" rel="stylesheet"> 
+    
+  
+  <link href="https://gargantuaX.github.io/css/vendors/bootstrap4/bootstrap.min.css" rel="stylesheet">
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/mdb/mdb.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/vendors/mdb/style.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/main.css" rel="stylesheet">
+
+
+  
+  <link rel="shortcut icon"
+  
+      href="https://gargantuaX.github.io/img/logo.png"
+  
+  >
+
+
+  
+  
+
+  <style type="text/css">
+      @media (min-width: 800px) and (max-width: 850px) {
+              .navbar:not(.top-nav-collapse) {
+                  background: #1C2331!important;
+              }
+          }
+  </style>
+
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/js/vendors/katex/katex.min.css">
+  
+  
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/css/vendors/highlight/github-gist.css">
+  
+
+</head>
+
+  <body class="bg-light" data-spy="scroll" data-target="#page-scrollspy" data-offset="90">
+  
+    
+    
+
+    
+      
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
+    <div class="container">
+
+      
+      <a class="navbar-brand" href="https://gargantuaX.github.io">
+          
+        <img class="avatar" src="https://gargantuaX.github.io/img/logo.png" style="width: 40px!important;height: auto;"  class="d-inline-block align-top" alt="" >
+        
+        <strong> Tars</strong>
+      </a>
+
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        
+        <ul class="navbar-nav mr-auto ">
+          <li class="nav-item ">
+            <a class="nav-link" href="https://gargantuaX.github.io">Home</a>
+          </li>
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/blog/" >Blog  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/about/" >About  </a>
+            </li>
+          
+          
+        </ul>
+
+      </div>
+
+    </div>
+  </nav>
+  
+ 
+      
+ 
+
+
+
+
+
+
+<div id="site-header" class="carousel slide carousel-fade" data-ride="carousel" style="height: 18rem;" >  
+
+  
+  
+  
+
+  
+  <div class="carousel-inner" role="listbox">
+    
+      
+
+        
+        <div class="carousel-item active">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides/1.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+              
+              
+              
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//2.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//3.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+
+  
+  </div>
+  
+
+  
+  <div class="carousel-content text-center white-text wow fadeIn">
+    <div class="row mx-0 headfont mt-3 pt-4">
+      
+      <div class="col-12 col-sm-5 align-middle">
+        <a href="https://gargantuaX.github.io">
+          
+            <img class="pull-right avatar avatar-md" src="https://gargantuaX.github.io/img/profile.jpg" alt="" >
+          
+        </a>
+      </div>
+      
+      <div class="col-12 col-sm-7 text-left pl-2">
+        <a href="https://gargantuaX.github.io">
+          <h1 class="mb-2 h1" style="font-weight: 300;" >
+            <strong>Tars</strong>
+          </h1>
+        </a>
+        
+
+             
+        <div class="mt-2" style="font-size: 1rem; color: white;">
+            
+              <a href="//github.com/gargantuaX" target="_blank" rel="noopener"><i class="fab fa-github pr-1" aria-hidden="true"></i></a>    
+            
+            
+
+            
+
+            
+
+            
+
+            
+    
+            
+    
+        
+            
+                <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open pr-1" aria-hidden="true"></i></a>
+            
+    
+            
+
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+  
+  
+
+</div>
+  
+    
+
+    
+  
+  <main class="post-main-wrapper">
+    
+    
+    <div class="row">
+
+      
+
+      
+      <div class="col-md-10">
+      
+
+        
+        <div class="z-depth-1  post-wrapper white-bg single-post">
+
+          <div class="post-header text-center" >
+  <ul class="post-meta li-x">
+    
+      
+        <li><a href="https://gargantuaX.github.io/categories/%E6%9D%82%E8%B0%88"><i class="fas fa-folder-open pr-1" aria-hidden="true"></i> 杂谈 </a></li>
+      
+    
+    
+  </ul>
+
+  <div class="px-4 post-heading">Linux服务器使用selenium的正确知识</div>
+
+  <ul class="post-meta li-x mt-1">
+    
+      <li>Aug 30, 2017</li>
+    
+
+    
+      <li class="middot"></li>
+      <li>One minute read</li>
+    
+  </ul>
+  
+
+</div>
+
+
+          <div class="post-content markdown">
+            
+
+<h3 id="导语">导语</h3>
+
+<p>最近使用PHP做了一些爬虫,其中部分需要用到selenium开浏览器</p>
+
+<p>值得注意的是Linux服务器没有显示输出终端的,我们要运行GUI程序,需要用到虚拟显示终端,比如 Xvfb</p>
+
+<p>另外服务器上建议用Firefox,备用Chrome,在实践当中,前者问题少一些</p>
+
+<h3 id="安装步骤">安装步骤</h3>
+
+<h4 id="安装php-webdriver">安装php-webdriver</h4>
+
+<pre><code>https://github.com/facebook/php-webdriver
+</code></pre>
+
+<h4 id="安装firefox">安装Firefox</h4>
+
+<pre><code>apt-get install firefox
+</code></pre>
+
+<h4 id="安装geckodriver">安装geckodriver</h4>
+
+<pre><code>https://github.com/mozilla/geckodriver/releases
+</code></pre>
+
+<h4 id="安装xvfb">安装xvfb</h4>
+
+<pre><code>apt-get install xvfb
+</code></pre>
+
+<hr />
+
+<h3 id="运行步骤">运行步骤</h3>
+
+<h4 id="设置xvfb">设置xvfb</h4>
+
+<pre><code>export DISPLAY=:10
+
+Xvfb :10 -screen 0 1366x768x24 -ac &amp;
+</code></pre>
+
+<h4 id="启用selenium-jar">启用selenium.jar</h4>
+
+<pre><code>nohup java -jar selenium-server-standalone-#.jar &amp;
+</code></pre>
+
+<p>现在可以使用webdriver控制selenium了</p>
+
+          </div>
+
+          
+          <div class="row">
+            <div class="col-md-8">
+            
+              <div class="mb-5">
+                
+<div class="li-x div-x post-meta">
+  <li class="pr-0"><a href="https://gargantuaX.github.io/tags/"><i class="fas fa-tags"></i></a></li>
+  <div class="tags-sm">
+    
+      <li><a href="https://gargantuaX.github.io/tags/linux" role="button">Linux </a></li>
+      
+    
+      <li><a href="https://gargantuaX.github.io/tags/selenium" role="button">Selenium </a></li>
+      
+    
+  </div>
+</div>
+              </div>
+            
+            </div>
+            
+          </div>
+          
+
+          
+          <div class="row pt-3">
+            <div class="col-md-6">
+              
+                <a href=https://gargantuaX.github.io/blog/2017-06/%E5%A6%82%E4%BD%95%E8%AE%B0%E5%BF%86vim%E5%BF%AB%E6%8D%B7%E9%94%AE/ class="post-meta">Previous
+                  <div class="pt-2 pb-5 d-flex">
+                    <i class="fas fa-angle-left text-grey font-weight-bold mr-2 active-color"></i>
+                    <span>如何记忆VIM快捷键</span>
+                  </div>
+                </a>
+              
+            </div>
+            
+            <div class="col-md-6 text-right" >
+              
+                <a href=https://gargantuaX.github.io/blog/2017-09/%E4%BD%BF%E7%94%A8docker%E5%92%8Claradock%E8%BF%9B%E8%A1%8Cphp%E5%BC%80%E5%8F%91/ class="post-meta">Next
+                  <div class="pt-2 pb-5 flex-reverse">
+                    <i class="fas fa-angle-right text-grey font-weight-bold ml-2 active-color"></i>
+                    <span>使用Docker和Laradock进行PHP开发</span>
+                  </div>
+                </a>
+              
+            </div>
+          </div>
+
+          
+
+        </div>
+        
+
+      </div>
+      
+
+      
+	
+	
+	
+	
+		
+		
+		
+	
+
+		
+		<div class="col-md-2 pl-0">
+
+			
+			<div id="page-scrollspy" class="toc-nav">
+				
+				<ul class="nav nav-pills ml-0">
+					
+					<li class="nav-item pb-3 text-center">
+						<span class="font-weight-bold mb-2">- CATALOG - </span>
+					</li>
+
+					
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%af%bc%e8%af%ad">
+												 导语
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%ae%89%e8%a3%85%e6%ad%a5%e9%aa%a4">
+												 安装步骤
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%ae%89%e8%a3%85php-webdriver">
+												 安装php-webdriver
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%ae%89%e8%a3%85firefox">
+												 安装Firefox
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%ae%89%e8%a3%85geckodriver">
+												 安装geckodriver
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%ae%89%e8%a3%85xvfb">
+												 安装xvfb
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e8%bf%90%e8%a1%8c%e6%ad%a5%e9%aa%a4">
+												 运行步骤
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e8%ae%be%e7%bd%aexvfb">
+												 设置xvfb
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%90%af%e7%94%a8selenium-jar">
+												 启用selenium.jar
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+
+				</ul>
+			</div>
+			
+
+		</div>
+		
+	
+
+    </div>
+    
+
+
+  </main>
+  
+
+
+    
+    
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+
+
+  
+  <div class="pb-2 mt-5 pt-5">
+    
+      <a href="//github.com/gargantuaX " target="_blank" rel="noopener"><i class="fab fa-github mr-3" aria-hidden="true"></i></a>    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+        <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open mr-3" aria-hidden="true"></i></a>
+    
+
+    
+
+    
+
+  </div>
+  
+
+  
+  <div class="copyright py-4">
+    
+    <span>  2016 - 2018 &copy; | Theme by Orianna</span>
+  </div>
+  
+
+</footer>
+
+
+    
+
+
+
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery.smooth-scroll.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/popper.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/holder.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors-extensions/bootstrap4/bootstrap.js" ></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/mdb/mdb.min.js"></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/main.js"></script>
+
+
+
+  
+  <script src="https://gargantuaX.github.io/js/vendors/highlight.pack.js"> </script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+ 
+  <script src="https://gargantuaX.github.io/js/vendors/katex/katex.min.js"> </script>
+  <script src="https://gargantuaX.github.io/js/vendors/katex/contrib/auto-render.min.js"></script>
+
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          renderMathInElement(document.body);
+      });
+  </script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  
+  new WOW().init();
+</script>
+
+
+
+
+  </body>
+</html>

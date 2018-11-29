@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docker on Tars</title>
+    <link>https://gargantuaX.github.io/tags/docker/</link>
+    <description>Recent content in Docker on Tars</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zn-Hans</language>
+    <lastBuildDate>Fri, 22 Sep 2017 03:20:16 +0000</lastBuildDate>
+    
+	<atom:link href="https://gargantuaX.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>使用Docker和Laradock进行PHP开发</title>
+      <link>https://gargantuaX.github.io/blog/2017-09/%E4%BD%BF%E7%94%A8docker%E5%92%8Claradock%E8%BF%9B%E8%A1%8Cphp%E5%BC%80%E5%8F%91/</link>
+      <pubDate>Fri, 22 Sep 2017 03:20:16 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-09/%E4%BD%BF%E7%94%A8docker%E5%92%8Claradock%E8%BF%9B%E8%A1%8Cphp%E5%BC%80%E5%8F%91/</guid>
+      <description>为什么要使用Docker Docker能极大地减少环境配置和环境差异带来的工作,能相当程度提高生产力.以往我们使用的Homestead等虚拟机只能实现开发环境的共享,并不能用到生产环境中,无法减少运维的工作. 什么是Docker? Docker 是个划时代的开源项目，它彻底释放了计算虚拟化的威力，极大提高了应用的运行效率，降低了云计算资源供应的成本！ 使用 Docker，可以让应用的部署、测试和分发都变得前所未有的高效</description>
+    </item>
+    
+  </channel>
+</rss>

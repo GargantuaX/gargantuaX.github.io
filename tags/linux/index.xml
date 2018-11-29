@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Linux on Tars</title>
+    <link>https://gargantuaX.github.io/tags/linux/</link>
+    <description>Recent content in Linux on Tars</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zn-Hans</language>
+    <lastBuildDate>Wed, 30 Aug 2017 05:48:56 +0000</lastBuildDate>
+    
+	<atom:link href="https://gargantuaX.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Linux服务器使用selenium的正确知识</title>
+      <link>https://gargantuaX.github.io/blog/2017-08/linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BD%BF%E7%94%A8selenium%E7%9A%84%E6%AD%A3%E7%A1%AE%E7%9F%A5%E8%AF%86/</link>
+      <pubDate>Wed, 30 Aug 2017 05:48:56 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-08/linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BD%BF%E7%94%A8selenium%E7%9A%84%E6%AD%A3%E7%A1%AE%E7%9F%A5%E8%AF%86/</guid>
+      <description>导语 最近使用PHP做了一些爬虫,其中部分需要用到selenium开浏览器 值得注意的是Linux服务器没有显示输出终端的,我们要运行GUI程序,需要用到虚拟显示终端,比如 Xvfb 另外服务器上建议用Firefox,备用Chrome,在实践当中,前者问题少一些 安装步骤 安装php-webdriver https://github.com/facebook/php-webdriver 安装Firefox apt-get install firefox 安装geckodriver https://github.com/mozilla/geckodriver/releases 安装xvfb apt-get install xvfb 运行步骤 设置xvfb export DISPLAY=:10 Xvfb :10 -screen 0 1366x768x24 -ac &amp;amp; 启用</description>
+    </item>
+    
+  </channel>
+</rss>

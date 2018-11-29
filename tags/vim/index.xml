@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vim on Tars</title>
+    <link>https://gargantuaX.github.io/tags/vim/</link>
+    <description>Recent content in Vim on Tars</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zn-Hans</language>
+    <lastBuildDate>Wed, 07 Jun 2017 05:11:26 +0000</lastBuildDate>
+    
+	<atom:link href="https://gargantuaX.github.io/tags/vim/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>如何记忆VIM快捷键</title>
+      <link>https://gargantuaX.github.io/blog/2017-06/%E5%A6%82%E4%BD%95%E8%AE%B0%E5%BF%86vim%E5%BF%AB%E6%8D%B7%E9%94%AE/</link>
+      <pubDate>Wed, 07 Jun 2017 05:11:26 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-06/%E5%A6%82%E4%BD%95%E8%AE%B0%E5%BF%86vim%E5%BF%AB%E6%8D%B7%E9%94%AE/</guid>
+      <description>使用键盘代替鼠标操作 光标上下左右移动:j k h l h:在最左边，左移动 l:同理，在最右边，右移动 j:下移 k:上移 在hjkl前加数字，比如3j就是向下移动三行，3l即使向右三行. w(word) 向右移动到下个单词的开头处,3w向右移动到3个单词的位置 b(back) 向左按移动到下个单词的开头处,3e向左移动到3个单词的位置 e(end) 向右移动到单词结尾处. 0 移动到行首 $ 移动到行尾,和正则的$意思一样 使用键盘进行插入,修改,删除,复制,粘贴 i</description>
+    </item>
+    
+  </channel>
+</rss>

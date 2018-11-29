@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Php on Tars</title>
+    <link>https://gargantuaX.github.io/categories/php/</link>
+    <description>Recent content in Php on Tars</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zn-Hans</language>
+    <lastBuildDate>Thu, 29 Nov 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://gargantuaX.github.io/categories/php/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>PHP和Java互通的国密SM4算法</title>
+      <link>https://gargantuaX.github.io/blog/2018-11/php%E5%92%8Cjava%E4%BA%92%E9%80%9A%E7%9A%84%E5%9B%BD%E5%AF%86sm4%E7%AE%97%E6%B3%95/</link>
+      <pubDate>Thu, 29 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2018-11/php%E5%92%8Cjava%E4%BA%92%E9%80%9A%E7%9A%84%E5%9B%BD%E5%AF%86sm4%E7%AE%97%E6%B3%95/</guid>
+      <description>简述 最近有需求要使用SM4算法传递信息，PHP加密，Java解密，网上找了一下 PHP7可以使用gmssl的PHP拓展支持，http://gmssl.org/docs/php-api.html PHP5只能用https://github.com/fevin/gmsm 这边项目是PHP5版本的，上面这个拓展只实现了128bit的块加密，没有实现ecb，cbc等对称加密模式 自己实现了一下ecb，使用数组来处</description>
+    </item>
+    
+    <item>
+      <title>读《Modern PHP》笔记</title>
+      <link>https://gargantuaX.github.io/blog/2017-03/%E8%AF%BBmodern-php%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Wed, 08 Mar 2017 12:34:48 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-03/%E8%AF%BBmodern-php%E7%AC%94%E8%AE%B0/</guid>
+      <description>读这本书感觉真的是一个前辈给后辈的敦敦教诲，颇费苦心。 我在这里列一下这本书的精华，供大家参考。 使用接口 依赖接口，而非具体实现，可以解耦，参考Laravel的契约 性状（trait） 这个特性很有意思，名字名副其实。 假如现在有一个人，还有一辆车，车和人都要实现给自己定位的功能，显然车和人不适合从一个父类继承，那这个时候trait就排上用场了。这是一个横向复用机制，让若干不想关的类带上同样一个性状。 http://php.net/manual/zh/language.oop5.traits.php 生成</description>
+    </item>
+    
+    <item>
+      <title>读《高性能PHP应用开发》笔记</title>
+      <link>https://gargantuaX.github.io/blog/2017-03/%E8%AF%BB%E9%AB%98%E6%80%A7%E8%83%BDphp%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Wed, 08 Mar 2017 02:38:42 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-03/%E8%AF%BB%E9%AB%98%E6%80%A7%E8%83%BDphp%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/</guid>
+      <description>《高性能PHP应用开发》这本书最值得学习的其实是一个思路： 要诊断问题，从目标的全生命周期出发，用合适的工具去测试和衡量，逐环节排查优化。 HTTP请求的生命周期 对于用户来说，一个HTTP请求的生命周期如上图，其中有一个环节慢，都会导致卡顿。 DNS/PING响应延迟检测工具：http://ping.chinaz.com/ WEB服务生命周期 服务器压力测试工具：ab 前端 这个环节往往是最容易被PHP程序员忽</description>
+    </item>
+    
+    <item>
+      <title>你真的了解IP吗，PHP如何严格获取真实用户IP？</title>
+      <link>https://gargantuaX.github.io/blog/2017-02/%E4%BD%A0%E7%9C%9F%E7%9A%84%E4%BA%86%E8%A7%A3ip%E5%90%97php%E5%A6%82%E4%BD%95%E4%B8%A5%E6%A0%BC%E8%8E%B7%E5%8F%96%E7%9C%9F%E5%AE%9E%E7%94%A8%E6%88%B7ip/</link>
+      <pubDate>Wed, 22 Feb 2017 05:37:39 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-02/%E4%BD%A0%E7%9C%9F%E7%9A%84%E4%BA%86%E8%A7%A3ip%E5%90%97php%E5%A6%82%E4%BD%95%E4%B8%A5%E6%A0%BC%E8%8E%B7%E5%8F%96%E7%9C%9F%E5%AE%9E%E7%94%A8%E6%88%B7ip/</guid>
+      <description>PHP里用来获取客户端IP的变量有这些: $_SERVER[&#39;HTTP_CLIENT_IP&#39;]这个头是有的，但是很少，不一定服务器都实现了。客户端可以伪造。 $_SERVER[&#39;HTTP_X_FORWARDED_FOR&#39;] 是有标准定义，用来识别经过HTTP代理后的客户端IP地址，格式：clientip,proxy1,proxy2。详细解释见 http://zh.wikipedia.org/wiki/X-Forwarded-For。 客户端可以伪造。 $_SERVER[&#39;REMOTE_ADDR&#39;] 是可靠的， 它是最</description>
+    </item>
+    
+    <item>
+      <title>两张图让你理解IOC(控制反转)</title>
+      <link>https://gargantuaX.github.io/blog/2017-02/%E4%B8%A4%E5%BC%A0%E5%9B%BE%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3ioc%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%AC/</link>
+      <pubDate>Wed, 15 Feb 2017 06:20:13 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-02/%E4%B8%A4%E5%BC%A0%E5%9B%BE%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3ioc%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%AC/</guid>
+      <description>简单理解依赖注入（DI，Dependency injection） 依赖注入通过构造注入，函数调用或者属性的设置来提供组件的依赖关系。就是这么简单。 简单理解控制反转（IOC，(Inversion of Control） 一开始我们代码依赖关系可能是如图这样的，这里只举例了3个对象和三个类的交叉依赖，我们代码的依赖关系实际情况其实要复杂得多，脑补十多个对象的交叉，甚至还有横向交叉。 现在问题来了，由于不可抗拒的原</description>
+    </item>
+    
+    <item>
+      <title>理解PHP延迟静态绑定(late static bindings)</title>
+      <link>https://gargantuaX.github.io/blog/2017-02/%E7%90%86%E8%A7%A3php%E5%BB%B6%E8%BF%9F%E9%9D%99%E6%80%81%E7%BB%91%E5%AE%9Alate-static-bindings/</link>
+      <pubDate>Wed, 15 Feb 2017 03:53:36 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-02/%E7%90%86%E8%A7%A3php%E5%BB%B6%E8%BF%9F%E9%9D%99%E6%80%81%E7%BB%91%E5%AE%9Alate-static-bindings/</guid>
+      <description>简单理解PHP延迟静态绑定 static::中的static其实是运行时所在类的别名，并不是定义类时所在的那个类名。这个东西可以实现在父类中能够调用子类的方法和属性。 使用(static)关键字来表示这个别名，和静态方法，静态类没有半毛钱的关系，static::不仅支持静态类，还支持对象（动态类）。 预备概念 转发调用 所谓的“转发调用”（forwarding call）指的是通过以下几种方式进行的静态调用：</description>
+    </item>
+    
+  </channel>
+</rss>

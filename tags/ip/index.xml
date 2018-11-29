@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ip on Tars</title>
+    <link>https://gargantuaX.github.io/tags/ip/</link>
+    <description>Recent content in Ip on Tars</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zn-Hans</language>
+    <lastBuildDate>Wed, 22 Feb 2017 05:37:39 +0000</lastBuildDate>
+    
+	<atom:link href="https://gargantuaX.github.io/tags/ip/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>你真的了解IP吗，PHP如何严格获取真实用户IP？</title>
+      <link>https://gargantuaX.github.io/blog/2017-02/%E4%BD%A0%E7%9C%9F%E7%9A%84%E4%BA%86%E8%A7%A3ip%E5%90%97php%E5%A6%82%E4%BD%95%E4%B8%A5%E6%A0%BC%E8%8E%B7%E5%8F%96%E7%9C%9F%E5%AE%9E%E7%94%A8%E6%88%B7ip/</link>
+      <pubDate>Wed, 22 Feb 2017 05:37:39 +0000</pubDate>
+      
+      <guid>https://gargantuaX.github.io/blog/2017-02/%E4%BD%A0%E7%9C%9F%E7%9A%84%E4%BA%86%E8%A7%A3ip%E5%90%97php%E5%A6%82%E4%BD%95%E4%B8%A5%E6%A0%BC%E8%8E%B7%E5%8F%96%E7%9C%9F%E5%AE%9E%E7%94%A8%E6%88%B7ip/</guid>
+      <description>PHP里用来获取客户端IP的变量有这些: $_SERVER[&#39;HTTP_CLIENT_IP&#39;]这个头是有的，但是很少，不一定服务器都实现了。客户端可以伪造。 $_SERVER[&#39;HTTP_X_FORWARDED_FOR&#39;] 是有标准定义，用来识别经过HTTP代理后的客户端IP地址，格式：clientip,proxy1,proxy2。详细解释见 http://zh.wikipedia.org/wiki/X-Forwarded-For。 客户端可以伪造。 $_SERVER[&#39;REMOTE_ADDR&#39;] 是可靠的， 它是最</description>
+    </item>
+    
+  </channel>
+</rss>

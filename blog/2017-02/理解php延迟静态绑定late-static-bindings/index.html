@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zn-Hans">
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1" />
+  <meta name="author" content="Tars">
+  <meta name="description" content="简单理解PHP延迟静态绑定 static::中的static其实是运行时所在类的别名，并不是定义类时所在的那个类名。这个东西可以实现在父类中能够调用子类的方法和属性。 使用(static)关键字来表示这个别名，和静态方法，静态类没有半毛钱的关系，static::不仅支持静态类，还支持对象（动态类）。 预备概念 转发调用 所谓的“转发调用”（forwarding call）指的是通过以下几种方式进行的静态调用：">
+  
+  <meta property="og:title" content="理解PHP延迟静态绑定(late static bindings)" />
+<meta property="og:description" content="简单理解PHP延迟静态绑定 static::中的static其实是运行时所在类的别名，并不是定义类时所在的那个类名。这个东西可以实现在父类中能够调用子类的方法和属性。 使用(static)关键字来表示这个别名，和静态方法，静态类没有半毛钱的关系，static::不仅支持静态类，还支持对象（动态类）。 预备概念 转发调用 所谓的“转发调用”（forwarding call）指的是通过以下几种方式进行的静态调用：" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://gargantuaX.github.io/blog/2017-02/%E7%90%86%E8%A7%A3php%E5%BB%B6%E8%BF%9F%E9%9D%99%E6%80%81%E7%BB%91%E5%AE%9Alate-static-bindings/" /><meta property="article:published_time" content="2017-02-15T03:53:36&#43;00:00"/>
+<meta property="article:modified_time" content="2017-02-15T03:53:36&#43;00:00"/>
+
+
+  <title>
+  
+       理解PHP延迟静态绑定(late static bindings) | Tars 
+  
+  </title>
+
+  <link rel="canonical" href="https://gargantuaX.github.io/blog/2017-02/%E7%90%86%E8%A7%A3php%E5%BB%B6%E8%BF%9F%E9%9D%99%E6%80%81%E7%BB%91%E5%AE%9Alate-static-bindings/">
+
+  
+  
+
+  
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/fontawesome/all.min.css" rel="stylesheet">
+
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Ubuntu+Mono:400,400i,700,700i|Raleway:300,400,500,600">
+  <link href="https://gargantuaX.github.io/css/font.css" rel="stylesheet"> 
+    
+  
+  <link href="https://gargantuaX.github.io/css/vendors/bootstrap4/bootstrap.min.css" rel="stylesheet">
+  <link href="https://gargantuaX.github.io/css/vendors-extensions/mdb/mdb.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/vendors/mdb/style.min.css" rel="stylesheet"> 
+  <link href="https://gargantuaX.github.io/css/main.css" rel="stylesheet">
+
+
+  
+  <link rel="shortcut icon"
+  
+      href="https://gargantuaX.github.io/img/logo.png"
+  
+  >
+
+
+  
+  
+
+  <style type="text/css">
+      @media (min-width: 800px) and (max-width: 850px) {
+              .navbar:not(.top-nav-collapse) {
+                  background: #1C2331!important;
+              }
+          }
+  </style>
+
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/js/vendors/katex/katex.min.css">
+  
+  
+
+  
+    
+    <link rel="stylesheet" href="https://gargantuaX.github.io/css/vendors/highlight/github-gist.css">
+  
+
+</head>
+
+  <body class="bg-light" data-spy="scroll" data-target="#page-scrollspy" data-offset="90">
+  
+    
+    
+
+    
+      
+
+
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
+    <div class="container">
+
+      
+      <a class="navbar-brand" href="https://gargantuaX.github.io">
+          
+        <img class="avatar" src="https://gargantuaX.github.io/img/logo.png" style="width: 40px!important;height: auto;"  class="d-inline-block align-top" alt="" >
+        
+        <strong> Tars</strong>
+      </a>
+
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+        
+        <ul class="navbar-nav mr-auto ">
+          <li class="nav-item ">
+            <a class="nav-link" href="https://gargantuaX.github.io">Home</a>
+          </li>
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/blog/" >Blog  </a>
+            </li>
+          
+             
+            <li class="nav-item ">
+              <a class="nav-link" href="https://gargantuaX.github.io/about/" >About  </a>
+            </li>
+          
+          
+        </ul>
+
+      </div>
+
+    </div>
+  </nav>
+  
+ 
+      
+ 
+
+
+
+
+
+
+<div id="site-header" class="carousel slide carousel-fade" data-ride="carousel" style="height: 18rem;" >  
+
+  
+  
+  
+
+  
+  <div class="carousel-inner" role="listbox">
+    
+      
+
+        
+        <div class="carousel-item active">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides/1.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+              
+              
+              
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//2.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+      
+
+        
+        <div class="carousel-item">
+          <div class="view" style="background-image: url('https://gargantuaX.github.io/img/header-slides//3.jpg'); background-repeat: no-repeat; background-size: cover;">
+
+            
+            <div class="mask rgba-black-light d-flex justify-content-center align-items-center">
+
+            
+
+            </div>
+            
+
+          </div>
+        </div>
+        
+      
+    
+
+  
+  </div>
+  
+
+  
+  <div class="carousel-content text-center white-text wow fadeIn">
+    <div class="row mx-0 headfont mt-3 pt-4">
+      
+      <div class="col-12 col-sm-5 align-middle">
+        <a href="https://gargantuaX.github.io">
+          
+            <img class="pull-right avatar avatar-md" src="https://gargantuaX.github.io/img/profile.jpg" alt="" >
+          
+        </a>
+      </div>
+      
+      <div class="col-12 col-sm-7 text-left pl-2">
+        <a href="https://gargantuaX.github.io">
+          <h1 class="mb-2 h1" style="font-weight: 300;" >
+            <strong>Tars</strong>
+          </h1>
+        </a>
+        
+
+             
+        <div class="mt-2" style="font-size: 1rem; color: white;">
+            
+              <a href="//github.com/gargantuaX" target="_blank" rel="noopener"><i class="fab fa-github pr-1" aria-hidden="true"></i></a>    
+            
+            
+
+            
+
+            
+
+            
+
+            
+    
+            
+    
+        
+            
+                <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open pr-1" aria-hidden="true"></i></a>
+            
+    
+            
+
+            
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  
+  
+  
+
+</div>
+  
+    
+
+    
+  
+  <main class="post-main-wrapper">
+    
+    
+    <div class="row">
+
+      
+
+      
+      <div class="col-md-10">
+      
+
+        
+        <div class="z-depth-1  post-wrapper white-bg single-post">
+
+          <div class="post-header text-center" >
+  <ul class="post-meta li-x">
+    
+      
+        <li><a href="https://gargantuaX.github.io/categories/php"><i class="fas fa-folder-open pr-1" aria-hidden="true"></i> PHP </a></li>
+      
+    
+    
+  </ul>
+
+  <div class="px-4 post-heading">理解PHP延迟静态绑定(late static bindings)</div>
+
+  <ul class="post-meta li-x mt-1">
+    
+      <li>Feb 15, 2017</li>
+    
+
+    
+      <li class="middot"></li>
+      <li>2 minutes read</li>
+    
+  </ul>
+  
+
+</div>
+
+
+          <div class="post-content markdown">
+            
+
+<h3 id="简单理解php延迟静态绑定">简单理解PHP延迟静态绑定</h3>
+
+<p>static::中的static其实是运行时所在类的别名，并不是定义类时所在的那个类名。这个东西可以实现在父类中能够调用子类的方法和属性。</p>
+
+<p>使用(static)关键字来表示这个别名，和静态方法，静态类没有半毛钱的关系，static::不仅支持静态类，还支持对象（动态类）。</p>
+
+<h3 id="预备概念">预备概念</h3>
+
+<h4 id="转发调用">转发调用</h4>
+
+<p>所谓的“转发调用”（forwarding call）指的是通过以下几种方式进行的静态调用：self::，parent::，static:: 以及 forward_static_call()。</p>
+
+<h4 id="非转发调用">非转发调用</h4>
+
+<p>那么非转发调用其实就是明确指定类名的静态调用（foo::bar()）和非静态调用($foo-&gt;bar())</p>
+
+<h3 id="后期静态绑定原理">后期静态绑定原理</h3>
+
+<p>后期静态绑定工作原理是存储了在上一个“非转发调用”（non-forwarding call）的类名。</p>
+
+<h3 id="例子1-简单使用static">例子1，简单使用static::</h3>
+
+<pre><code>class A {
+    public static function who() {
+        echo __CLASS__;
+    }
+    public static function test() {
+        static::who(); // 后期静态绑定从这里开始
+    }
+}
+class B extends A {
+    public static function who() {
+        echo __CLASS__;
+    }
+}
+B::test();
+</code></pre>
+
+<p>以上例程会输出：</p>
+
+<pre><code>B
+</code></pre>
+
+<h3 id="例子2-区分转发调用和非转发调用">例子2，区分转发调用和非转发调用</h3>
+
+<pre><code>class A {
+    public static function foo() {
+        static::who();
+    }
+
+    public static function who() {
+        echo __CLASS__.&quot;\n&quot;;
+    }
+}
+
+class B extends A {
+    public static function test() {
+        A::foo();
+        parent::foo();
+        self::foo();
+    }
+
+    public static function who() {
+        echo __CLASS__.&quot;\n&quot;;
+    }
+}
+class C extends B {
+    public static function who() {
+        echo __CLASS__.&quot;\n&quot;;
+    }
+}
+
+C::test();
+</code></pre>
+
+<p>以上例程会输出：</p>
+
+<pre><code>A
+C
+C
+</code></pre>
+
+<h3 id="例子3-使用场景举例">例子3，使用场景举例</h3>
+
+<pre><code>class Model 
+{ 
+    public static function find() 
+    { 
+        echo static::$name; 
+    } 
+} 
+
+class Product extends Model 
+{ 
+    protected static $name = 'Product'; 
+} 
+
+Product::find(); 
+</code></pre>
+
+<h3 id="参考资料">参考资料：</h3>
+
+<p><a href="http://php.net/manual/zh/language.oop5.late-static-bindings.php">PHP官方的解释</a></p>
+
+          </div>
+
+          
+          <div class="row">
+            <div class="col-md-8">
+            
+              <div class="mb-5">
+                
+<div class="li-x div-x post-meta">
+  <li class="pr-0"><a href="https://gargantuaX.github.io/tags/"><i class="fas fa-tags"></i></a></li>
+  <div class="tags-sm">
+    
+      <li><a href="https://gargantuaX.github.io/tags/php" role="button">PHP </a></li>
+      
+    
+      <li><a href="https://gargantuaX.github.io/tags/%E9%9D%99%E6%80%81%E7%BB%91%E5%AE%9A" role="button">静态绑定 </a></li>
+      
+    
+  </div>
+</div>
+              </div>
+            
+            </div>
+            
+          </div>
+          
+
+          
+          <div class="row pt-3">
+            <div class="col-md-6">
+              
+            </div>
+            
+            <div class="col-md-6 text-right" >
+              
+                <a href=https://gargantuaX.github.io/blog/2017-02/%E4%B8%A4%E5%BC%A0%E5%9B%BE%E8%AE%A9%E4%BD%A0%E7%90%86%E8%A7%A3ioc%E6%8E%A7%E5%88%B6%E5%8F%8D%E8%BD%AC/ class="post-meta">Next
+                  <div class="pt-2 pb-5 flex-reverse">
+                    <i class="fas fa-angle-right text-grey font-weight-bold ml-2 active-color"></i>
+                    <span>两张图让你理解IOC(控制反转)</span>
+                  </div>
+                </a>
+              
+            </div>
+          </div>
+
+          
+
+        </div>
+        
+
+      </div>
+      
+
+      
+	
+	
+	
+	
+		
+		
+		
+	
+
+		
+		<div class="col-md-2 pl-0">
+
+			
+			<div id="page-scrollspy" class="toc-nav">
+				
+				<ul class="nav nav-pills ml-0">
+					
+					<li class="nav-item pb-3 text-center">
+						<span class="font-weight-bold mb-2">- CATALOG - </span>
+					</li>
+
+					
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e7%ae%80%e5%8d%95%e7%90%86%e8%a7%a3php%e5%bb%b6%e8%bf%9f%e9%9d%99%e6%80%81%e7%bb%91%e5%ae%9a">
+												 简单理解PHP延迟静态绑定
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e9%a2%84%e5%a4%87%e6%a6%82%e5%bf%b5">
+												 预备概念
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e8%bd%ac%e5%8f%91%e8%b0%83%e7%94%a8">
+												 转发调用
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e9%9d%9e%e8%bd%ac%e5%8f%91%e8%b0%83%e7%94%a8">
+												 非转发调用
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%90%8e%e6%9c%9f%e9%9d%99%e6%80%81%e7%bb%91%e5%ae%9a%e5%8e%9f%e7%90%86">
+												 后期静态绑定原理
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e4%be%8b%e5%ad%901-%e7%ae%80%e5%8d%95%e4%bd%bf%e7%94%a8static">
+												 例子1，简单使用static::
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e4%be%8b%e5%ad%902-%e5%8c%ba%e5%88%86%e8%bd%ac%e5%8f%91%e8%b0%83%e7%94%a8%e5%92%8c%e9%9d%9e%e8%bd%ac%e5%8f%91%e8%b0%83%e7%94%a8">
+												 例子2，区分转发调用和非转发调用
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e4%be%8b%e5%ad%903-%e4%bd%bf%e7%94%a8%e5%9c%ba%e6%99%af%e4%b8%be%e4%be%8b">
+												 例子3，使用场景举例
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+						
+						
+							
+								
+								
+									<ul class="nav">
+								
+									<ul class="nav">
+								
+								
+
+										<li class="nav-item">
+						 					<a class="nav-link" href="#%e5%8f%82%e8%80%83%e8%b5%84%e6%96%99">
+												 参考资料：
+											</a>
+										</li>
+						 
+								
+								
+									</ul>
+								
+									</ul>
+								
+							
+						
+				 
+
+				</ul>
+			</div>
+			
+
+		</div>
+		
+	
+
+    </div>
+    
+
+
+  </main>
+  
+
+
+    
+    
+
+<footer class="page-footer text-center font-small mt-4 wow fadeIn">
+
+
+  
+  <div class="pb-2 mt-5 pt-5">
+    
+      <a href="//github.com/gargantuaX " target="_blank" rel="noopener"><i class="fab fa-github mr-3" aria-hidden="true"></i></a>    
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+        <a href="mailto:gargantua_tars@163.com"><i class="far fa-envelope-open mr-3" aria-hidden="true"></i></a>
+    
+
+    
+
+    
+
+  </div>
+  
+
+  
+  <div class="copyright py-4">
+    
+    <span>  2016 - 2018 &copy; | Theme by Orianna</span>
+  </div>
+  
+
+</footer>
+
+
+    
+
+
+
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/jquery/jquery.smooth-scroll.min.js"></script>
+
+
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/popper.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/holder.min.js"></script>
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors-extensions/bootstrap4/bootstrap.js" ></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/vendors/mdb/mdb.min.js"></script>
+
+<script type="text/javascript" src="https://gargantuaX.github.io/js/main.js"></script>
+
+
+
+  
+  <script src="https://gargantuaX.github.io/js/vendors/highlight.pack.js"> </script>
+  <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+ 
+  <script src="https://gargantuaX.github.io/js/vendors/katex/katex.min.js"> </script>
+  <script src="https://gargantuaX.github.io/js/vendors/katex/contrib/auto-render.min.js"></script>
+
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          renderMathInElement(document.body);
+      });
+  </script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+  
+  new WOW().init();
+</script>
+
+
+
+
+  </body>
+</html>
